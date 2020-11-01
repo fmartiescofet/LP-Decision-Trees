@@ -2,23 +2,31 @@ import Data.List
 import Data.Ord
 
 
-data DTree = Node String [(String,DTree)] | Leaf String deriving Show
+data DTree = Node String [(Char,DTree)] | Leaf String deriving Show
 type Matrix a = [[a]]
+
 
 main :: IO ()
 main = do
     contents <- readFile "short.data"
+    let attributes = ["cap-shape","cap-color","gill-color"]
     let d = (transpose $  lines $ filter (/=',') contents)
     let classification = head d
     let dat = tail d
     print (getBestAttr classification dat)
+    print (buildDTree attributes classification dat)
 
     
     
 
-buildDTree :: [Char] -> Matrix Char -> DTree
+buildDTree :: [String] -> [Char] -> Matrix Char -> DTree
 
-buildDTree classification d = Leaf "S"
+buildDTree attributes classification d = Node (attributes !! index) (map (\x -> f x) (unique $ d !! index))
+  where 
+    index = getBestAttr classification d
+    f x = (x, if all (\y -> fst y == 'p') (filter (\y -> snd y == x) (zip classification (d !! index))) then Leaf "poisonous" 
+      else if all (\y -> fst y == 'e') (filter (\y -> snd y == x) (zip classification (d !! index))) then Leaf "edible" 
+      else Leaf "per fer")
 
 -- Tranposa una matriu
 --transposeM :: [[a]]->[[a]]
