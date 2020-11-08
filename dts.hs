@@ -21,12 +21,32 @@ main = do
 
 buildDTree :: [String] -> [Char] -> Matrix Char -> DTree
 
+buildDTree (attr:[]) classification d = Node (attr) (map (\x -> f x) (unique $ d !! 0))
+  where 
+    f x
+      | (countBy (==('p',x)) zipped) >= (countBy (==('e',x)) zipped) = (x, Leaf "poisonous")
+      | otherwise = (x, Leaf "edible")
+      where
+        zipped = zip classification (d !! 0)
+
 buildDTree attributes classification d = Node (attributes !! index) (map (\x -> f x) (unique $ d !! index))
   where 
     index = getBestAttr classification d
-    f x = (x, if all (\y -> fst y == 'p') (filter (\y -> snd y == x) (zip classification (d !! index))) then Leaf "poisonous" 
-      else if all (\y -> fst y == 'e') (filter (\y -> snd y == x) (zip classification (d !! index))) then Leaf "edible" 
-      else Leaf "per fer")
+    f x
+      | all (\y -> fst y == 'p') (filter (\y -> snd y == x) (zip classification (d !! index))) = (x, Leaf "poisonous")
+      | all (\y -> fst y == 'e') (filter (\y -> snd y == x) (zip classification (d !! index))) = (x, Leaf "edible")
+      | otherwise = (x, buildDTree attributes_f (head data_f) (tail data_f))
+      where 
+        data_f = filterData classification d x index
+        attributes_f = take index attributes ++ drop (index+1) attributes
+
+filterData :: [Char] -> Matrix Char -> Char -> Int -> Matrix Char
+
+filterData classification d t index = take (index+1) lines_t ++ drop (index+2) lines_t
+  where 
+    lines_filtered = filter (\l -> (l !! (index + 1)) == t) (transpose $ classification:d)
+    lines_t = transpose lines_filtered
+
 
 -- Tranposa una matriu
 --transposeM :: [[a]]->[[a]]
