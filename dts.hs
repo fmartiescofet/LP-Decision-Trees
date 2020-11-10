@@ -2,9 +2,25 @@ import Data.List
 import Data.Ord
 
 
-data DTree = Node String [(Char,DTree)] | Leaf String deriving Show
+data DTree = Node String [(Char,DTree)] | Leaf String
 type Matrix a = [[a]]
 
+
+instance Show DTree where
+  --show (Node atr l) = atr ++ "\n" ++ foldl (++) "\n" (map f l)
+    --where f el = fst el : "\n" ++ "\t"++ (show (snd el))
+  --show (Node atr l) = atr ++":\n" ++ (foldl f "" l)
+    --where f i el = i ++ "\n" ++ show el
+  --show (Leaf s) = s
+  show a = dTreeToStr a 0
+
+dTreeToStr :: DTree -> Int -> String
+
+dTreeToStr (Node attr l) level = attr ++ "\n" ++ (concatList (level+1) (map (\(x,y) -> (x, dTreeToStr y (level+2))) l))
+  where 
+    concatList _ [] = ""
+    concatList ntabs (x:xs) = ([1..ntabs] >> " ") ++ [fst x] ++ "\n" ++ ([1..ntabs+1] >> " ") ++ snd x ++(concatList ntabs xs)
+dTreeToStr (Leaf s) _ = s ++ "\n"
 
 main :: IO ()
 main = do
@@ -14,8 +30,8 @@ main = do
     let classification = head d
     let dat = tail d
     print (getBestAttr classification dat)
-    print (buildDTree attributes classification dat)
-
+    let arbre = (buildDTree attributes classification dat)
+    print arbre
     
     
 
