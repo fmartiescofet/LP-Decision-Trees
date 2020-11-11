@@ -9,3 +9,8 @@ let classification (Leaf s) = do
         case tree2 of
           Just a -> classification a
           Nothing -> classification (Node attr l)
+
+
+
+contents <- readFile "short.data"
+    let attributes = ["cap-shape","cap-color","gill-color"]
