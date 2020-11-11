@@ -29,9 +29,26 @@ main = do
     let d = (transpose $  lines $ filter (/=',') contents)
     let classification = head d
     let dat = tail d
-    print (getBestAttr classification dat)
     let arbre = (buildDTree attributes classification dat)
     print arbre
+    classificationIO arbre
+
+classificationIO :: DTree -> IO ()
+classificationIO (Node attr l) = do
+  putStrLn $ "Which " ++ attr ++ "?"
+  line <- getLine
+  let tree2 = lookup (line !! 0) l
+  case tree2 of
+    Just a -> classificationIO a
+    Nothing -> do
+      putStrLn "Incorrect option"
+      classificationIO (Node attr l)
+  
+classificationIO (Leaf s) = do
+  putStrLn s
+
+
+
     
     
 

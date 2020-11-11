@@ -1,1 +1,11 @@
 p,x,n,k\ne,x,y,k\ne,b,w,n\np,x,w,n\ne,x,y,n\ne,b,w,n\np,x,w,p
+
+let classification (Leaf s) = do
+        putStrLn s
+    let classification (Node attr l) = do
+        putStrLn $ "Which " ++ attr ++ "?"
+        char <- getChar
+        let tree2 = lookup char l
+        case tree2 of
+          Just a -> classification a
+          Nothing -> classification (Node attr l)
