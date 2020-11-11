@@ -1,21 +1,19 @@
-
-
-
+-- Data type to represent a decsion tree
 data DTree = Node String [(Char,DTree)] | Leaf String
 type Matrix a = [[a]]
 
 instance Show DTree where
   show a = dTreeToStr a 0
 
+-- Converts a decision tree to a string so it can be printed
 dTreeToStr :: DTree -> Int -> String
-
-dTreeToStr (Node attr l) level = attr ++ "\n" ++ (concatList (level+1) (map (\(x,y) -> (x, dTreeToStr y (level+2))) l))
+dTreeToStr (Node attr l) nspaces = attr ++ "\n" ++ (concatList (nspaces+1) (map (\(x,y) -> (x, dTreeToStr y (nspaces+2))) l))
   where 
     concatList _ [] = ""
-    concatList ntabs (x:xs) = ([1..ntabs] >> " ") ++ [fst x] ++ "\n" ++ ([1..ntabs+1] >> " ") ++ snd x ++(concatList ntabs xs)
-
+    concatList nspaces (x:xs) = ([1..nspaces] >> " ") ++ [fst x] ++ "\n" ++ ([1..nspaces+1] >> " ") ++ snd x ++(concatList nspaces xs)
 dTreeToStr (Leaf s) _ = s ++ "\n"
 
+-- List of attributes names
 attributes = ["cap-shape","cap-surface","cap-color","bruises?","odor","gill-attachment","gill-spacing","gill-size","gill-color","stalk-shape","stalk-root","stalk-surface-above-ring","stalk-surface-below-ring","stalk-color-above-ring","stalk-color-below-ring","veil-type","veil-color","ring-number","ring-type","spore-print-color","population","habitat"]
 
 
@@ -77,20 +75,21 @@ filterData classification d t index = take (index+1) lines_t ++ drop (index+2) l
     lines_t = transpose lines_filtered
 
 
--- Tranposa una matriu
-transpose :: [[a]]->[[a]]
+-- Tranpose a matrix
+transpose :: Matrix a -> Matrix a
 transpose ([]:_) = []
 transpose x = (map head x) : transpose (map tail x)
 
--- Retorna la llista sense repeticions
+-- Returns a list with no repetitions
 unique :: [Char] -> [Char]
 unique [] = []
 unique (x : xs) = x : unique (filter (x /=) xs)
 
--- Compta el numero d'elements que compleixen una condició
+-- Counts the elements that fulfill a condition
 countBy :: (a -> Bool) -> [a] -> Int
 countBy cond = foldr (\x cnt -> if cond x then cnt + 1 else cnt) 0
 
+-- Returns a pair containing the maximum element and it's index of a list
 maxim :: (Ord a) => [a] -> (a, Int)
 maxim l = pmaxim l 0
   where
@@ -105,12 +104,13 @@ maxim l = pmaxim l 0
 
 -- Retorna l'index de l'element més gran (en cas d'empat el de més a la dreta)
 maxIndex ::  Ord a => [a] -> Int
---maxIndex = fst . maximumBy (comparing snd) . zip [0..]
 maxIndex = snd . maxim
 
+-- Computes accuracy for an attribute
 computeAccuracy :: [Char] -> [Char] -> Int
 computeAccuracy classification attribute = sum $ map (\x -> f (zip classification attribute) x) (unique attribute)
   where f pairs c = maximum [countBy (== ('p',c)) pairs, countBy (== ('e',c)) pairs]
 
+-- Returns the index of the best attribute to split the dataset
 getBestAttr :: [Char] -> Matrix Char -> Int
 getBestAttr classification d = maxIndex $ map (\x -> computeAccuracy classification x) d
