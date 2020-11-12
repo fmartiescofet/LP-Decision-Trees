@@ -7,6 +7,8 @@ attributes = ["cap-shape","cap-color","gill-color"]
 let classification = head d
 let dat = tail d
 d = dat
+arbre = buildDTree attributes classification dat
+print arbre
 map (computeAccuracy classification) d
 
 

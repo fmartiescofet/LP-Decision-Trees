@@ -20,13 +20,15 @@ To run the code:
 ```
 
 ## About the implementation
+The decision tree is implemented as an algebraic `data` type which can either be a `Node String [(Char,DTree)]` which contains the decision attribute and all the possibilities or a `Leaf String` which contains if the mushroom is *edible* or *poisonous*.
+
+I've decided to work with the datset as a matrix where each row is an attribute and each column is a mushroom so it's easier to work with it.
+
 The used algorithm to build the decision tree is specified in the following document:
 Gerard Escudero, 2020. [Machine Learning(p.35-40)](https://gebakx.github.io/ml/#35)
 If there is a tie of the accuracy between different attributes I choose the one which classifies more examples in poisonous or edible by using the `computeNFiltered` function, and if there's still a tie I choose the one with bigger index.
 
-The decision tree is implemented as an algebraic `data` type which can either be a `Node String [(Char,DTree)]` which contains the decision attribute and all the possibilities or a `Leaf String` which contains if the mushroom is *edible* or *poisonous*.
-
-I've decided to work with the datset as a matrix where each row is an attribute and each column is a mushroom so it's easier to work with it.
+TODO: Missing values
 
 All used functions are documented in the code.
 ## Author

@@ -30,7 +30,8 @@ main = do
 -- Program to classify interactively a mushroom
 classificationIO :: DTree -> IO ()
 classificationIO (Node attr l) = do
-  putStrLn $ "Which " ++ attr ++ "?"
+  let options = foldl (\x y -> x ++ ", " ++ [fst y]) "" l
+  putStrLn $ "Which " ++ attr ++ "?\nOptions:" ++ tail options
   line <- getLine
   let tree2 = lookup (head line) l
   case tree2 of
@@ -41,7 +42,6 @@ classificationIO (Node attr l) = do
   
 classificationIO (Leaf s) = do
   putStrLn s
-
 
 
 -- Builds the decision tree from a list of attributes, and the data matrix
@@ -66,14 +66,12 @@ buildDTree attributes classification d = Node (attributes !! index) (map f (uniq
         data_f = filterData classification d x index
         attributes_f = take index attributes ++ drop (index+1) attributes
 
-
 -- Returns only the lines that the attribute on position index is equal to t and drops the attribute
 filterData :: [Char] -> Matrix Char -> Char -> Int -> Matrix Char
 filterData classification d t index = take (index+1) lines_t ++ drop (index+2) lines_t
   where 
     lines_filtered = filter (\l -> (l !! (index + 1)) == t) (transpose $ classification:d)
     lines_t = transpose lines_filtered
-
 
 -- Tranpose a matrix
 transpose :: Matrix a -> Matrix a
@@ -111,7 +109,6 @@ computeNFiltered classification attribute = sum $ map (f (zip classification att
       | countBy (== ('p',c)) pairs == 0 = countBy (== ('e',c)) pairs
       | countBy (== ('e',c)) pairs == 0 = countBy (== ('p',c)) pairs
       | otherwise = 0
-
 
 -- Computes accuracy for an attribute
 computeAccuracy :: [Char] -> [Char] -> Int
