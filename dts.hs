@@ -16,17 +16,18 @@ dTreeToStr (Leaf s) _ = s ++ "\n"
 -- List of attributes names
 attributes = ["cap-shape","cap-surface","cap-color","bruises?","odor","gill-attachment","gill-spacing","gill-size","gill-color","stalk-shape","stalk-root","stalk-surface-above-ring","stalk-surface-below-ring","stalk-color-above-ring","stalk-color-below-ring","veil-type","veil-color","ring-number","ring-type","spore-print-color","population","habitat"]
 
-
+-- Main program, it reads the data from the file and constructs the decision tree
 main :: IO ()
 main = do
     contents <- readFile "agaricus-lepiota.data"
-    let d = transpose $  lines $ filter (/=',') contents
+    let d = transpose $ lines $ filter (/=',') contents
     let classification = head d
     let dat = tail d
     let arbre = buildDTree attributes classification dat
     print arbre
     classificationIO arbre
 
+-- Program to classify interactively a mushroom
 classificationIO :: DTree -> IO ()
 classificationIO (Node attr l) = do
   putStrLn $ "Which " ++ attr ++ "?"
@@ -43,9 +44,9 @@ classificationIO (Leaf s) = do
 
 
 
-    
+-- Builds the decision tree from a list of attributes, and the data matrix
 buildDTree :: [String] -> [Char] -> Matrix Char -> DTree
-
+-- If there's only one attribute I classify the examples as the most present in the examples
 buildDTree [attr] classification d = Node attr (map f (unique $ head d))
   where 
     f x
@@ -88,20 +89,29 @@ unique (x : xs) = x : unique (filter (x /=) xs)
 countBy :: (a -> Bool) -> [a] -> Int
 countBy cond = foldr (\x cnt -> if cond x then cnt + 1 else cnt) 0
 
--- Returns a pair containing the maximum element and it's index of a list
-maxim :: (Ord a) => [a] -> (a, Int)
-maxim l = recmaxim l 0
+-- Returns a lis of pairs containing the maximum elements and their index of a list
+maxims :: (Ord a) => [a] -> [(a, Int)]
+maxims l = recmaxim l 0
   where
-    recmaxim :: (Ord a) => [a] -> Int -> (a, Int) 
-    recmaxim [x] xi = (x, xi)
+    recmaxim :: (Ord a) => [a] -> Int -> [(a, Int)]
+    recmaxim [x] xi = [(x, xi)]
     recmaxim (x:xs) xi
-      | x > t     = (x, xi)
-      | otherwise = (t, ti)
-      where (t, ti) = recmaxim xs (xi + 1)
+      | x > t     = [(x, xi)]
+      | x == t    = (x, xi):l
+      | otherwise = l
+      where 
+        l = recmaxim xs (xi + 1)
+        t = fst $ head l
 
--- Retorna l'index de l'element més gran (en cas d'empat el de més a la dreta)
-maxIndex ::  Ord a => [a] -> Int
-maxIndex = snd . maxim
+-- Computes the number number of example that will be filtered if we make a node with the attribute
+computeNFiltered :: [Char] -> [Char] -> Int
+computeNFiltered classification attribute = sum $ map (f (zip classification attribute)) (unique attribute)
+  where 
+    f pairs c
+      | countBy (== ('p',c)) pairs == 0 = countBy (== ('e',c)) pairs
+      | countBy (== ('e',c)) pairs == 0 = countBy (== ('p',c)) pairs
+      | otherwise = 0
+
 
 -- Computes accuracy for an attribute
 computeAccuracy :: [Char] -> [Char] -> Int
@@ -110,4 +120,4 @@ computeAccuracy classification attribute = sum $ map (f (zip classification attr
 
 -- Returns the index of the best attribute to split the dataset
 getBestAttr :: [Char] -> Matrix Char -> Int
-getBestAttr classification d = maxIndex $ map (computeAccuracy classification) d
+getBestAttr classification d = snd $ maximum $ map (\(_,index) -> (computeNFiltered classification (d !! index),index)) (maxims $ map (computeAccuracy classification) d)

@@ -1,5 +1,15 @@
 p,x,n,k\ne,x,y,k\ne,b,w,n\np,x,w,n\ne,x,y,n\ne,b,w,n\np,x,w,p
 
+contents = "p,x,n,k\ne,x,y,k\ne,b,w,n\np,x,w,n\ne,x,y,n\ne,b,w,n\np,x,w,p"
+let d = transpose $ lines $ filter (/=',') contents
+attributes = ["cap-shape","cap-color","gill-color"]
+
+let classification = head d
+let dat = tail d
+d = dat
+map (computeAccuracy classification) d
+
+
 let classification (Leaf s) = do
         putStrLn s
     let classification (Node attr l) = do
