@@ -7,10 +7,10 @@ instance Show DTree where
 
 -- Converts a decision tree to a string so it can be printed
 dTreeToStr :: DTree -> Int -> String
-dTreeToStr (Node attr l) nspaces = attr ++ "\n" ++ (concatList (nspaces+1) (map (\(x,y) -> (x, dTreeToStr y (nspaces+2))) l))
+dTreeToStr (Node attr l) nspaces = attr ++ "\n" ++ concatList (nspaces+1) (map (\(x,y) -> (x, dTreeToStr y (nspaces+2))) l)
   where 
     concatList _ [] = ""
-    concatList nspaces (x:xs) = ([1..nspaces] >> " ") ++ [fst x] ++ "\n" ++ ([1..nspaces+1] >> " ") ++ snd x ++(concatList nspaces xs)
+    concatList nspaces (x:xs) = ([1..nspaces] >> " ") ++ [fst x] ++ "\n" ++ ([1..nspaces+1] >> " ") ++ snd x ++ concatList nspaces xs
 dTreeToStr (Leaf s) _ = s ++ "\n"
 
 -- List of attributes names
@@ -20,10 +20,10 @@ attributes = ["cap-shape","cap-surface","cap-color","bruises?","odor","gill-atta
 main :: IO ()
 main = do
     contents <- readFile "agaricus-lepiota.data"
-    let d = (transpose $  lines $ filter (/=',') contents)
+    let d = transpose $  lines $ filter (/=',') contents
     let classification = head d
     let dat = tail d
-    let arbre = (buildDTree attributes classification dat)
+    let arbre = buildDTree attributes classification dat
     print arbre
     classificationIO arbre
 
@@ -31,7 +31,7 @@ classificationIO :: DTree -> IO ()
 classificationIO (Node attr l) = do
   putStrLn $ "Which " ++ attr ++ "?"
   line <- getLine
-  let tree2 = lookup (line !! 0) l
+  let tree2 = lookup (head line) l
   case tree2 of
     Just a -> classificationIO a
     Nothing -> do
@@ -44,19 +44,17 @@ classificationIO (Leaf s) = do
 
 
     
-    
-
 buildDTree :: [String] -> [Char] -> Matrix Char -> DTree
 
-buildDTree (attr:[]) classification d = Node (attr) (map (\x -> f x) (unique $ d !! 0))
+buildDTree [attr] classification d = Node attr (map f (unique $ head d))
   where 
     f x
-      | (countBy (==('p',x)) zipped) >= (countBy (==('e',x)) zipped) = (x, Leaf "poisonous")
+      | countBy (==('p',x)) zipped >= countBy (==('e',x)) zipped = (x, Leaf "poisonous")
       | otherwise = (x, Leaf "edible")
       where
-        zipped = zip classification (d !! 0)
+        zipped = zip classification $ head d
 
-buildDTree attributes classification d = Node (attributes !! index) (map (\x -> f x) (unique $ d !! index))
+buildDTree attributes classification d = Node (attributes !! index) (map f (unique $ d !! index))
   where 
     index = getBestAttr classification d
     f x
@@ -67,8 +65,9 @@ buildDTree attributes classification d = Node (attributes !! index) (map (\x -> 
         data_f = filterData classification d x index
         attributes_f = take index attributes ++ drop (index+1) attributes
 
-filterData :: [Char] -> Matrix Char -> Char -> Int -> Matrix Char
 
+-- Returns only the lines that the attribute on position index is equal to t and drops the attribute
+filterData :: [Char] -> Matrix Char -> Char -> Int -> Matrix Char
 filterData classification d t index = take (index+1) lines_t ++ drop (index+2) lines_t
   where 
     lines_filtered = filter (\l -> (l !! (index + 1)) == t) (transpose $ classification:d)
@@ -78,7 +77,7 @@ filterData classification d t index = take (index+1) lines_t ++ drop (index+2) l
 -- Tranpose a matrix
 transpose :: Matrix a -> Matrix a
 transpose ([]:_) = []
-transpose x = (map head x) : transpose (map tail x)
+transpose x = map head x : transpose (map tail x)
 
 -- Returns a list with no repetitions
 unique :: [Char] -> [Char]
@@ -91,16 +90,14 @@ countBy cond = foldr (\x cnt -> if cond x then cnt + 1 else cnt) 0
 
 -- Returns a pair containing the maximum element and it's index of a list
 maxim :: (Ord a) => [a] -> (a, Int)
-maxim l = pmaxim l 0
+maxim l = recmaxim l 0
   where
-    pmaxim :: (Ord a) => [a] -> Int -> (a, Int) -- Internal function to do the work
-    pmaxim [] _  = error "Empty list"           -- List is empty, error
-    pmaxim [x] xi = (x, xi)                     -- List has one item, return it and the index
-    pmaxim (x:xs) xi                            -- More than one item, break list apart
-      | x > t     = (x, xi)                     -- If current item is bigger, return it and its index
-      | otherwise = (t, ti)                     -- If list tail has a bigger item, return that
-      where (t, ti) = pmaxim xs (xi + 1)        -- Get max of tail of the list
-
+    recmaxim :: (Ord a) => [a] -> Int -> (a, Int) 
+    recmaxim [x] xi = (x, xi)
+    recmaxim (x:xs) xi
+      | x > t     = (x, xi)
+      | otherwise = (t, ti)
+      where (t, ti) = recmaxim xs (xi + 1)
 
 -- Retorna l'index de l'element més gran (en cas d'empat el de més a la dreta)
 maxIndex ::  Ord a => [a] -> Int
@@ -108,9 +105,9 @@ maxIndex = snd . maxim
 
 -- Computes accuracy for an attribute
 computeAccuracy :: [Char] -> [Char] -> Int
-computeAccuracy classification attribute = sum $ map (\x -> f (zip classification attribute) x) (unique attribute)
+computeAccuracy classification attribute = sum $ map (f (zip classification attribute)) (unique attribute)
   where f pairs c = maximum [countBy (== ('p',c)) pairs, countBy (== ('e',c)) pairs]
 
 -- Returns the index of the best attribute to split the dataset
 getBestAttr :: [Char] -> Matrix Char -> Int
-getBestAttr classification d = maxIndex $ map (\x -> computeAccuracy classification x) d
+getBestAttr classification d = maxIndex $ map (computeAccuracy classification) d
