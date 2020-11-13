@@ -23,9 +23,11 @@ main = do
     let d = transpose $ lines $ filter (/=',') contents
     let classification = head d
     let dat = tail d
-    let arbre = buildDTree attributes classification dat
-    print arbre
-    classificationIO arbre
+    let tree = buildDTree attributes classification dat
+    putStrLn "Do you want to print the generated tree? (y/n)"
+    l <- getLine
+    if head l == 'y' then  print tree else putStrLn ""
+    classificationIO tree
 
 -- Program to classify interactively a mushroom
 classificationIO :: DTree -> IO ()
