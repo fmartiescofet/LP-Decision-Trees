@@ -14,10 +14,12 @@ To compile the code:
 ghc dts.hs
 ```
 
+## Execution
 To run the code:
 ```bash
 ./dts
 ```
+After starting the execution you will be prompted with the question: `Do you want to print the generated tree? (y/n)`, in case you answer `y` it will print the generated tree. After that you can classify mushrooms interactively going through the decision tree answering the questions prompted by the program.
 
 ## About the implementation
 The decision tree is implemented as an algebraic `data` type which can either be a `Node String [(Char,DTree)]` which contains the decision attribute and all the possibilities or a `Leaf String` which contains if the mushroom is *edible* or *poisonous*.
