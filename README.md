@@ -25,7 +25,9 @@ The decision tree is implemented as an algebraic `data` type which can either be
 I've decided to work with the datset as a matrix where each row is an attribute and each column is a mushroom so it's easier to deal with it.
 
 The used algorithm to build the decision tree is specified in the following document:
+
 Gerard Escudero, 2020. [Machine Learning(p.35-40)](https://gebakx.github.io/ml/#35)
+
 If there is a tie of the accuracy between different attributes I choose the one which classifies more examples in poisonous or edible by using the `computeNFiltered` function, and if there's still a tie I choose the one with bigger index.
 
 As we can see there are missing values in the *stalk-root* attribute that are "?" in the input file. We're going to deal with them as if "?" was another possible value of the attribute.
