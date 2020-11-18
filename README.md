@@ -4,7 +4,7 @@ Project of Programming Languages subject in Barcelona School of Informatics, FIB
 Fall 2020-2021.
 
 This project consists of an implementation of a decision tree for the [Mushroom Dataset](https://archive.ics.uci.edu/ml/datasets/Mushroom) to decide if a mushroom is *edible* or *poisonous*.
-The data used for the decision tree construction is in `agaricus-lepiota.data`and information about the meaning of each attribute can be found in `agaricus-lepiota.names`.
+The data used for the decision tree construction is in `agaricus-lepiota.data` and information about the meaning of each attribute can be found in `agaricus-lepiota.names`.
 
 ## Getting started
 To run this program you only need `ghc` installed. You can check [here](https://www.haskell.org/platform/) for installation instructions.
@@ -28,7 +28,7 @@ The used algorithm to build the decision tree is specified in the following docu
 
 Gerard Escudero, 2020. [Machine Learning(p.35-40)](https://gebakx.github.io/ml/#35)
 
-If there is a tie of the accuracy between different attributes I choose the one which classifies more examples in poisonous or edible by using the `computeNFiltered` function, and if there's still a tie I choose the one with bigger index.
+To choose the best attribute to split the dataset I calculate each attribute accuracy by using the `computeAccuracy` function, if there is a tie of the accuracy between different attributes I choose the one which fully classifies more examples in poisonous or edible by using the `computeNFiltered` function, and if there's still a tie I choose the one with bigger index.
 
 As we can see there are missing values in the *stalk-root* attribute that are "?" in the input file. We're going to deal with them as if "?" was another possible value of the attribute.
 

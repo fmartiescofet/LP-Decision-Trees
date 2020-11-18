@@ -126,7 +126,7 @@ maxims l = recmaxim l 0
         l = recmaxim xs (xi + 1)
         t = fst $ head l
 
--- Computes the number number of example that will be filtered if we make a node with the attribute
+-- Computes the number number of example that will be filtered if we make a node with the attribute (to handle accuracy ties)
 computeNFiltered :: [Char] -> [Char] -> Int
 computeNFiltered classification attribute = sum $ map (f (zip classification attribute)) (unique attribute)
   where 
@@ -135,11 +135,11 @@ computeNFiltered classification attribute = sum $ map (f (zip classification att
       | countBy (== ('e',c)) pairs == 0 = countBy (== ('p',c)) pairs
       | otherwise = 0
 
--- Computes accuracy for an attribute
+-- Computes accuracy for an attribute by adding the maximum number between the number of poisonous or edible examples for each option of the atributte
 computeAccuracy :: [Char] -> [Char] -> Int
 computeAccuracy classification attribute = sum $ map (f (zip classification attribute)) (unique attribute)
   where f pairs c = maximum [countBy (== ('p',c)) pairs, countBy (== ('e',c)) pairs]
 
--- Returns the index of the best attribute to split the dataset
+-- Returns the index of the best attribute to split the dataset (first gets the ones with most accuracy and then computes the number of filtered examples to use in case of a tie)
 getBestAttr :: [Char] -> Matrix Char -> Int
 getBestAttr classification d = snd $ maximum $ map (\(_,index) -> (computeNFiltered classification (d !! index),index)) (maxims $ map (computeAccuracy classification) d)
