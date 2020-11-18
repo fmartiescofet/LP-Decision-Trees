@@ -32,7 +32,7 @@ Gerard Escudero, 2020. [Machine Learning(p.35-40)](https://gebakx.github.io/ml/#
 
 To choose the best attribute to split the dataset I calculate each attribute accuracy by using the `computeAccuracy` function, if there is a tie of the accuracy between different attributes I choose the one which fully classifies more examples in poisonous or edible by using the `computeNFiltered` function, and if there's still a tie I choose the one with bigger index.
 
-As we can see there are missing values in the *stalk-root* attribute that are "?" in the input file. We're going to deal with them as if "?" was another possible value of the attribute.
+As we can see there are missing values in the *stalk-root* attribute that are `?` in the input file. We're going to deal with them as if `?` was another possible value of the attribute.
 
 All used functions are documented in the code.
 ## Author
