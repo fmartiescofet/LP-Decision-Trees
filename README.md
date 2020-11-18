@@ -16,7 +16,7 @@ ghc dts.hs
 
 To run the code:
 ```bash
-./dts.hs
+./dts
 ```
 
 ## About the implementation
