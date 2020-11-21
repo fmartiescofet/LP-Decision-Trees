@@ -19,10 +19,66 @@ To run the code:
 ```bash
 ./dts
 ```
-After starting the execution you will be prompted with the question: `Do you want to print the generated tree? (y/n)`, in case you answer `y` it will print the generated tree. After that you can classify mushrooms interactively going through the decision tree answering the questions prompted by the program.
+After starting the execution you will be prompted with the question: `Do you want to print the generated tree? (y/n)`, in case you answer `y` it will print the generated tree that will be the following:
+```
+odor
+ p
+  poisonous
+ a
+  edible
+ l
+  edible
+ n
+  spore-print-color
+   n
+    edible
+   k
+    edible
+   w
+    habitat
+     w
+      edible
+     l
+      population
+       v
+        edible
+       c
+        poisonous
+     d
+      population
+       v
+        poisonous
+       y
+        edible
+     g
+      edible
+     p
+      edible
+   h
+    edible
+   r
+    poisonous
+   o
+    edible
+   y
+    edible
+   b
+    edible
+ f
+  poisonous
+ c
+  poisonous
+ y
+  poisonous
+ s
+  poisonous
+ m
+  poisonous
+```
+After that you can classify mushrooms interactively going through the decision tree answering the questions prompted by the program.
 
 ## About the implementation
-The decision tree is implemented as an algebraic `data` type which can either be a `Node String [(Char,DTree)]` which contains the decision attribute and all the possibilities or a `Leaf String` which contains if the mushroom is *edible* or *poisonous*.
+The decision tree is implemented as an algebraic `data` type which can either be a `Node String [(Char,DTree)]` which contains the decision attribute and a list of pairs `(Char,DTree)` with all the possible choses for the attribute, or a `Leaf String` which contains if the mushroom is *edible* or *poisonous*.
 
 I've decided to work with the datset as a matrix where each row is an attribute and each column is a mushroom so it's easier to deal with it.
 
